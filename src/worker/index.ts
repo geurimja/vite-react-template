@@ -1,12 +1,19 @@
-import { Hono } from "hono";
-const app = new Hono<{ Bindings: Env }>();
+import { Hono } from "hono"
 
-app.get("/api/:id", (c) => {
-	const id = c.req.param("id")
-	const data = c.env.POSTS.get(id, { type: "json" })
-	if (!data) return c.notFound()
-	
-	return c.json(data)
-});
+type Env = {
+  Bindings: {
+    POSTS: KVNamespace
+  }
+}
 
-export default app;
+const app = new Hono<Env>()
+
+app.get("/api/:id", async (c) => {
+  const id = c.req.param("id")
+  const data = await c.env.POSTS.get(id, { type: "json" })
+  if (!data) return c.notFound()
+  
+  return c.json(data)
+})
+
+export default app
